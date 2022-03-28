@@ -1,0 +1,341 @@
+[
+  {
+    "comment": "Adding an Object Member",
+    "doc": { "foo": "bar" },
+    "patch": [{ "op": "add", "path": "/baz", "value": "qux" }],
+    "expected": {
+      "baz": "qux",
+      "foo": "bar"
+    }
+  },
+  {
+    "comment": "Adding an Array Element",
+    "doc": { "foo": ["bar", "baz"] },
+    "patch": [{ "op": "add", "path": "/foo/1", "value": "qux" }],
+    "expected": { "foo": ["bar", "qux", "baz"] }
+  },
+  {
+    "comment": "Removing an Object Member",
+    "doc": {
+      "baz": "qux",
+      "foo": "bar"
+    },
+    "patch": [{ "op": "remove", "path": "/baz" }],
+    "expected": { "foo": "bar" }
+  },
+  {
+    "comment": "Removing an Array Element",
+    "doc": { "foo": ["bar", "qux", "baz"] },
+    "patch": [{ "op": "remove", "path": "/foo/1" }],
+    "expected": { "foo": ["bar", "baz"] }
+  },
+  {
+    "comment": "Replacing a Value",
+    "doc": {
+      "baz": "qux",
+      "foo": "bar"
+    },
+    "patch": [{ "op": "replace", "path": "/baz", "value": "boo" }],
+    "expected": {
+      "baz": "boo",
+      "foo": "bar"
+    }
+  },
+  {
+    "comment": "Moving a Value",
+    "doc": {
+      "foo": {
+        "bar": "baz",
+        "waldo": "fred"
+      },
+      "qux": {
+        "corge": "grault"
+      }
+    },
+    "patch": [{ "op": "move", "from": "/foo/waldo", "path": "/qux/thud" }],
+    "expected": {
+      "foo": {
+        "bar": "baz"
+      },
+      "qux": {
+        "corge": "grault",
+        "thud": "fred"
+      }
+    }
+  },
+  {
+    "comment": "Moving an Array Element",
+    "doc": { "foo": ["all", "grass", "cows", "eat"] },
+    "patch": [{ "op": "move", "from": "/foo/1", "path": "/foo/3" }],
+    "expected": { "foo": ["all", "cows", "eat", "grass"] }
+  },
+  {
+    "comment": "Adding a Nested Member Object",
+    "doc": { "foo": "bar" },
+    "patch": [{ "op": "add", "path": "/child", "value": { "grandchild": {} } }],
+    "expected": {
+      "foo": "bar",
+      "child": {
+        "grandchild": {}
+      }
+    }
+  },
+  {
+    "comment": "Adding to a Nonexistent Target",
+    "doc": { "foo": "bar" },
+    "patch": [{ "op": "add", "path": "/baz/bat", "value": "qux" }]
+  },
+  {
+    "comment": "Adding an Array Value",
+    "doc": { "foo": ["bar"] },
+    "patch": [{ "op": "add", "path": "/foo/-", "value": ["abc", "def"] }],
+    "expected": { "foo": ["bar", ["abc", "def"]] }
+  },
+  {
+    "comment": "add replaces any existing field",
+    "doc": { "foo": null },
+    "patch": [{ "op": "add", "path": "/foo", "value": 1 }],
+    "expected": { "foo": 1 }
+  },
+  {
+    "comment": "toplevel object, numeric string",
+    "doc": {},
+    "patch": [{ "op": "add", "path": "/foo", "value": "1" }],
+    "expected": { "foo": "1" }
+  },
+  {
+    "comment": "toplevel object, integer",
+    "doc": {},
+    "patch": [{ "op": "add", "path": "/foo", "value": 1 }],
+    "expected": { "foo": 1 }
+  },
+  {
+    "comment": "replace object document with array document?",
+    "doc": {},
+    "patch": [{ "op": "add", "path": "", "value": [] }]
+  },
+  {
+    "comment": "Add, / target",
+    "doc": {},
+    "patch": [{ "op": "add", "path": "/", "value": 1 }]
+  },
+  {
+    "comment": "Add, /foo/ deep target (trailing slash)",
+    "doc": { "foo": {} },
+    "patch": [{ "op": "add", "path": "/foo/", "value": 1 }]
+  },
+  {
+    "comment": "Add composite value at top level",
+    "doc": { "foo": 1 },
+    "patch": [{ "op": "add", "path": "/bar", "value": [1, 2] }],
+    "expected": { "foo": 1, "bar": [1, 2] }
+  },
+  {
+    "comment": "Add into composite value",
+    "doc": { "foo": 1, "baz": [{ "qux": "hello" }] },
+    "patch": [{ "op": "add", "path": "/baz/0/foo", "value": "world" }],
+    "expected": { "foo": 1, "baz": [{ "qux": "hello", "foo": "world" }] }
+  },
+  {
+    "doc": { "bar": [1, 2] },
+    "patch": [{ "op": "add", "path": "/bar/8", "value": "5" }],
+    "error": "Out of bounds (upper)"
+  },
+  {
+    "doc": { "bar": [1, 2] },
+    "patch": [{ "op": "add", "path": "/bar/-1", "value": "5" }],
+    "error": "Out of bounds (lower)"
+  },
+  {
+    "doc": { "foo": 1 },
+    "patch": [{ "op": "add", "path": "/bar", "value": true }],
+    "expected": { "foo": 1, "bar": true }
+  },
+  {
+    "doc": { "foo": 1 },
+    "patch": [{ "op": "add", "path": "/bar", "value": false }],
+    "expected": { "foo": 1, "bar": false }
+  },
+  {
+    "doc": { "foo": 1 },
+    "patch": [{ "op": "add", "path": "/bar", "value": null }],
+    "expected": { "foo": 1, "bar": null }
+  },
+  {
+    "comment": "0 can be an array index or object element name",
+    "doc": { "foo": 1 },
+    "patch": [{ "op": "add", "path": "/0", "value": "bar" }],
+    "expected": { "0": "bar", "foo": 1 }
+  },
+  {
+    "doc": { "foo": 1, "bar": [1, 2, 3, 4] },
+    "patch": [{ "op": "remove", "path": "/bar" }],
+    "expected": { "foo": 1 }
+  },
+  {
+    "doc": { "foo": 1, "baz": [{ "qux": "hello" }] },
+    "patch": [{ "op": "remove", "path": "/baz/0/qux" }],
+    "expected": { "foo": 1, "baz": [{}] }
+  },
+  {
+    "doc": { "foo": 1, "baz": [{ "qux": "hello" }] },
+    "patch": [{ "op": "replace", "path": "/foo", "value": [1, 2, 3, 4] }],
+    "expected": { "foo": [1, 2, 3, 4], "baz": [{ "qux": "hello" }] }
+  },
+  {
+    "doc": { "foo": [1, 2, 3, 4], "baz": [{ "qux": "hello" }] },
+    "patch": [{ "op": "replace", "path": "/baz/0/qux", "value": "world" }],
+    "expected": { "foo": [1, 2, 3, 4], "baz": [{ "qux": "world" }] }
+  },
+  {
+    "comment": "replace whole document",
+    "doc": { "foo": "bar" },
+    "patch": [{ "op": "replace", "path": "", "value": { "baz": "qux" } }],
+    "expected": { "baz": "qux" }
+  },
+  {
+    "comment": "test replace with missing parent key should fail",
+    "doc": { "bar": "baz" },
+    "patch": [{ "op": "replace", "path": "/foo/bar", "value": false }],
+    "error": "replace op should fail with missing parent key"
+  },
+  {
+    "doc": { "foo": null },
+    "patch": [{ "op": "replace", "path": "/foo", "value": "truthy" }],
+    "expected": { "foo": "truthy" },
+    "comment": "null value should be valid obj property to be replaced with something truthy"
+  },
+  {
+    "doc": { "foo": null },
+    "patch": [{ "op": "move", "from": "/foo", "path": "/bar" }],
+    "expected": { "bar": null },
+    "comment": "null value should be valid obj property to be moved"
+  },
+  {
+    "doc": { "foo": null },
+    "patch": [{ "op": "copy", "from": "/foo", "path": "/bar" }],
+    "expected": { "foo": null, "bar": null },
+    "comment": "null value should be valid obj property to be copied"
+  },
+  {
+    "doc": { "foo": null },
+    "patch": [{ "op": "remove", "path": "/foo" }],
+    "expected": {},
+    "comment": "null value should be valid obj property to be removed"
+  },
+  {
+    "doc": { "foo": "bar" },
+    "patch": [{ "op": "replace", "path": "/foo", "value": null }],
+    "expected": { "foo": null },
+    "comment": "null value should still be valid obj property replace other value"
+  },
+  {
+    "comment": "Move to same location has no effect",
+    "doc": { "foo": 1 },
+    "patch": [{ "op": "move", "from": "/foo", "path": "/foo" }],
+    "expected": { "foo": 1 }
+  },
+  {
+    "doc": { "foo": 1, "baz": [{ "qux": "hello" }] },
+    "patch": [{ "op": "move", "from": "/foo", "path": "/bar" }],
+    "expected": { "baz": [{ "qux": "hello" }], "bar": 1 }
+  },
+  {
+    "doc": { "baz": [{ "qux": "hello" }], "bar": 1 },
+    "patch": [{ "op": "move", "from": "/baz/0/qux", "path": "/baz/1" }],
+    "expected": { "baz": [{}, "hello"], "bar": 1 }
+  },
+  {
+    "doc": { "baz": [{ "qux": "hello" }], "bar": 1 },
+    "patch": [{ "op": "copy", "from": "/baz/0", "path": "/boo" }],
+    "expected": {
+      "baz": [{ "qux": "hello" }],
+      "bar": 1,
+      "boo": { "qux": "hello" }
+    }
+  },
+  {
+    "comment": "replacing the root of the document is possible with add",
+    "doc": { "foo": "bar" },
+    "patch": [{ "op": "add", "path": "", "value": { "baz": "qux" } }],
+    "expected": { "baz": "qux" }
+  },
+  {
+    "comment": "test remove with bad number should fail",
+    "doc": { "foo": 1, "baz": [{ "qux": "hello" }] },
+    "patch": [{ "op": "remove", "path": "/baz/1e0/qux" }],
+    "error": "remove op shouldn't remove from array with bad number"
+  },
+  {
+    "comment": "test copy with bad number should fail",
+    "doc": { "baz": [1, 2, 3], "bar": 1 },
+    "patch": [{ "op": "copy", "from": "/baz/1e0", "path": "/boo" }],
+    "error": "copy op shouldn't work with bad number"
+  },
+  {
+    "comment": "test move with bad number should fail",
+    "doc": { "foo": 1, "baz": [1, 2, 3, 4] },
+    "patch": [{ "op": "move", "from": "/baz/1e0", "path": "/foo" }],
+    "error": "move op shouldn't work with bad number"
+  },
+  {
+    "comment": "missing 'path' parameter",
+    "doc": {},
+    "patch": [{ "op": "add", "value": "bar" }],
+    "error": "missing 'path' parameter"
+  },
+  {
+    "comment": "'path' parameter with null value",
+    "doc": {},
+    "patch": [{ "op": "add", "path": null, "value": "bar" }],
+    "error": "null is not valid value for 'path'"
+  },
+  {
+    "comment": "invalid JSON Pointer token",
+    "doc": {},
+    "patch": [{ "op": "add", "path": "foo", "value": "bar" }],
+    "error": "JSON Pointer should start with a slash"
+  },
+  {
+    "comment": "missing from location to copy",
+    "doc": { "foo": 1 },
+    "patch": [{ "op": "copy", "from": "/bar", "path": "/foo" }],
+    "error": "missing 'from' location"
+  },
+  {
+    "comment": "missing from parameter to move",
+    "doc": { "foo": 1 },
+    "patch": [{ "op": "move", "path": "" }],
+    "error": "missing 'from' parameter"
+  },
+  {
+    "comment": "missing from location to move",
+    "doc": { "foo": 1 },
+    "patch": [{ "op": "move", "from": "/bar", "path": "/foo" }],
+    "error": "missing 'from' location"
+  },
+  {
+    "comment": "unrecognized op should fail",
+    "doc": { "foo": 1 },
+    "patch": [{ "op": "spam", "path": "/foo", "value": 1 }],
+    "error": "Unrecognized op 'spam'"
+  },
+  {
+    "comment": "Removing nonexistent field",
+    "doc": { "foo": "bar" },
+    "patch": [{ "op": "remove", "path": "/baz" }],
+    "error": "removing a nonexistent field should fail"
+  },
+  {
+    "comment": "Removing deep nonexistent path",
+    "doc": { "foo": "bar" },
+    "patch": [{ "op": "remove", "path": "/missing1/missing2" }],
+    "error": "removing a nonexistent field should fail"
+  },
+  {
+    "comment": "Patch with different capitalisation than doc",
+    "doc": { "foo": "bar" },
+    "patch": [{ "op": "add", "path": "/FOO", "value": "BAR" }],
+    "expected": { "foo": "bar", "FOO": "BAR" }
+  }
+]
