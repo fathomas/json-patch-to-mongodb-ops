@@ -36,9 +36,11 @@ MongoClient.connect("mongodb://admin:localpasswd@localhost:27017/", {
         const resultString = stringifyJson(changedDoc);
         const expectedString = stringifyJson(example.expected);
         if (resultString === expectedString) {
-          console.log(`Test ${index + 1} (${example.comment || "-"}) worked!`);
+          console.debug(
+            `Test ${index + 1} (${example.comment || "-"}) worked!`
+          );
         } else {
-          console.log(
+          console.debug(
             `Test ${index + 1} (${example.comment || "-"}) ${
               !example.expected
                 ? "has result, but is supposed to fail"
@@ -52,13 +54,13 @@ MongoClient.connect("mongodb://admin:localpasswd@localhost:27017/", {
         }
       } catch (error) {
         if (!example.expected) {
-          console.log(
+          console.debug(
             `Test ${index + 1} (${
               example.comment || "-"
             }) worked (failed as expected)!`
           );
         } else {
-          console.log(
+          console.debug(
             `Test ${index + 1} (${example.comment || "-"}) errored: ${error}.
              Patch: ${JSON.stringify(example.patch)}
             `

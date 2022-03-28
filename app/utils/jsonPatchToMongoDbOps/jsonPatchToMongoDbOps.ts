@@ -79,12 +79,15 @@ export async function jsonPatchToMongoDbOps(
                 : NaN;
 
             const currDoc = await collection.findOne(targetFilter, {
-              projection: Number.isNaN(targetIndex)
-                ? {
-                    [fromParts[0]]: 1,
-                  }
-                : // Reduce memory usage and speed up query.
-                  { [fromParts[0]]: { $slice: [targetIndex, 1] } },
+              // Reduce memory usage and speed up query.
+              projection: {
+                _id: 0,
+                ...(Number.isNaN(targetIndex)
+                  ? {
+                      [fromParts[0]]: 1,
+                    }
+                  : { [fromParts[0]]: { $slice: [targetIndex, 1] } }),
+              },
             });
 
             let segmentsToWalk, startPoint;
