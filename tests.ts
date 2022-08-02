@@ -2,6 +2,7 @@ const { MongoClient } = require("mongodb");
 const stringifyJson = require("json-stable-stringify");
 
 const { jsonPatchToMongoDbOps } = require("./jsonPatchToMongoDbOps");
+// Examples based on: https://github.com/json-patch/json-patch-tests
 const examples = require("./examples.json");
 
 MongoClient.connect("mongodb://admin:localpasswd@localhost:27017/", {

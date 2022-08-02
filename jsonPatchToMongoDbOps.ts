@@ -1,7 +1,7 @@
 import { Operation, validate } from "fast-json-patch";
-import { BulkWriteOperation, Collection } from "mongodb";
+import { BulkWriteUpdateOneOperation, Collection } from "mongodb";
 
-const toDot = (path) =>
+export const jsonPatchPathToDot = (path) =>
   path
     .replace(/^\//, "")
     .replace(/\//g, ".")
@@ -19,7 +19,7 @@ function getTrailingPos(path: string): number {
 }
 
 function $remove(path: any) {
-  const result = [];
+  const result: any[] = [];
   const trailingPos = getTrailingPos(path);
   result.push({ $unset: { [path]: 1 } });
   if (!Number.isNaN(trailingPos)) {
@@ -47,7 +47,7 @@ export async function jsonPatchToMongoDbOps(
   patch: Operation[],
   targetFilter: Record<string, any>,
   collection: Collection
-): Promise<BulkWriteOperation<{}>[]> {
+): Promise<BulkWriteUpdateOneOperation<{}>[]> {
   const error = validate(patch);
   if (error) {
     throw error;
@@ -55,7 +55,7 @@ export async function jsonPatchToMongoDbOps(
   return (
     await Promise.all(
       patch.map(async (operation) => {
-        const path = toDot(operation.path);
+        const path = jsonPatchPathToDot(operation.path);
         if (!path || path.endsWith(".")) {
           throw new Error("Invalid update path.");
         }
@@ -71,7 +71,7 @@ export async function jsonPatchToMongoDbOps(
           }
           case "copy":
           case "move": {
-            const from = toDot(operation.from);
+            const from = jsonPatchPathToDot(operation.from);
             const fromParts = from.split(".");
             const targetIndex =
               fromParts[1] && /^\d+$/.test(fromParts[1])
@@ -117,7 +117,7 @@ export async function jsonPatchToMongoDbOps(
             throw new Error("Unsupported Operation! op = " + operation.op);
           }
         }
-      }, [])
+      })
     )
   )
     .flat()
