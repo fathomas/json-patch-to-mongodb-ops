@@ -5,7 +5,7 @@
   "main": "jsonPatchToMongoDbOps.ts",
   "repository": "https://github.com/fathomas/json-patch-to-mongodb-ops",
   "author": "Fabian Thomas <fabian.t.thomas@gmail.com>",
-  "license": "MIT",
+  "license": "CC0-1.0",
   "private": false,
   "dependencies": {
     "fast-json-patch": "^3.1.1",
